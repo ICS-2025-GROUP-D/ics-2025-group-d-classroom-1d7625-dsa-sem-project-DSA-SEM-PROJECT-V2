@@ -7,16 +7,6 @@ class Patient:
     def __str__(self):
         return f"{self.name}, {self.id_number}, {self.illness}"
 
-def __init__(self, name, pat_ID, illness):
-    self.name = name
-    self.pat_ID = pat_ID
-    self.illness = illness
-
-
-def __repr__(self):
-    return f"Patient(name={self.name}, ID={self.pat_ID}, illness={self.illness})"
-
-
 class Stack:
     def __init__(self):
         self.stack = []
