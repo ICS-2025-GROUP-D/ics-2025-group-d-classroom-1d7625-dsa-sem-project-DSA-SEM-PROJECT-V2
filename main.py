@@ -1,0 +1,351 @@
+import tkinter as tk
+from pymongo import MongoClient
+from tkinter import ttk
+
+"""
+    1.
+    Set up the main window
+    Specify the title
+    Specify the size (Feel free to change)
+"""
+main_window = tk.Tk()
+main_window.title("DSA CAT 2")
+main_window.geometry("700x500")
+
+"""
+    2.
+    Set up all the UI components for the main window:
+    Table, Buttons, NoteBook, NoteBook Tabs
+    .grid() to place the items in the main window
+"""
+# Table
+data_table = ttk.Treeview(main_window, columns=("title", "description"), show="headings")
+
+# Table headings
+data_table.heading(column="title", text="Title")
+data_table.heading(column="description", text="Description")
+
+# Table headings size
+data_table.column(column="title", width=250)
+data_table.column(column="description", width=325)
+
+# Buttons
+all_notes_button = ttk.Button(main_window, text="Read All Notes")
+select_notes_button = ttk.Button(main_window, text="Show Selected Note")
+add_to_revision_queue_button = ttk.Button(main_window, text="Add to Revision Queue")
+add_to_revision_stack_button = ttk.Button(main_window, text="Add to Revision Stack")
+start_revision_queue_button = ttk.Button(main_window, text="Start Revision Queue")
+start_revision_stack_button = ttk.Button(main_window, text="Start Revision Stack")
+
+# Notebook
+main_notebook = ttk.Notebook()
+
+# Notebook tabs
+manipulate_notebook_tab = tk.Frame(main_notebook)
+revision_queue_notebook_tab = tk.Frame(main_notebook)
+revision_stack_notebook_tab = tk.Frame(main_notebook)
+all_notes_notebook_tab = tk.Frame(main_notebook)
+frequent_paths_tab = tk.Frame(main_notebook)
+
+# Add the tabs to Notebook
+main_notebook.add(manipulate_notebook_tab, text="Data Operations")
+main_notebook.add(revision_queue_notebook_tab, text="Revision Queue")
+main_notebook.add(revision_stack_notebook_tab, text="Revision Stack")
+main_notebook.add(all_notes_notebook_tab, text="All Notes")
+main_notebook.add(frequent_paths_tab, text="Frequent Paths")
+
+"""
+    3.
+    Place the components on the main window
+"""
+data_table.grid(column=0, row=0, columnspan=15)
+all_notes_button.grid(column=1, row=1, columnspan=4)
+select_notes_button.grid(column=1, row=2, columnspan=4)
+add_to_revision_queue_button.grid(column=6, row=1, columnspan=4)
+add_to_revision_stack_button.grid(column=11, row=1, columnspan=4)
+start_revision_queue_button.grid(column=6, row=2, columnspan=4)
+start_revision_stack_button.grid(column=11, row=2, columnspan=4)
+main_notebook.grid(column=0, row=3, columnspan=15)
+
+""""
+    4.
+    Place the Same text and label components on all notebook tabs except frequent tab
+    Align them in the same position on each tab
+"""
+# Labels
+title_label_manipulate_notebook_tab = ttk.Label(manipulate_notebook_tab, text="Title")
+title_label_revision_queue_notebook_tab = ttk.Label(revision_queue_notebook_tab, text="Title")
+title_label_revision_stack_notebook_tab = ttk.Label(revision_stack_notebook_tab, text="Title")
+title_label_all_notes_notebook = ttk.Label(all_notes_notebook_tab, text="Title")
+description_label_manipulate_notebook_tab = ttk.Label(manipulate_notebook_tab, text="Description")
+description_label_revision_queue_notebook_tab = ttk.Label(revision_queue_notebook_tab, text="Description")
+description_label_revision_stack_notebook_tab = ttk.Label(revision_stack_notebook_tab, text="Description")
+description_label_all_notes_notebook = ttk.Label(all_notes_notebook_tab, text="Description")
+
+# Text Areas
+title_text_area_manipulate_notebook_tab = tk.Text(manipulate_notebook_tab, height=1)
+title_text_area_revision_queue_notebook_tab = tk.Text(revision_queue_notebook_tab, height=1)
+title_text_area_revision_stack_notebook_tab = tk.Text(revision_stack_notebook_tab, height=1)
+title_text_area_all_notes_notebook = tk.Text(all_notes_notebook_tab, height=1)
+description_text_area_manipulate_notebook_tab = tk.Text(manipulate_notebook_tab, height=4)
+description_text_area_revision_queue_notebook_tab = tk.Text(revision_queue_notebook_tab, height=4)
+description_text_area_revision_stack_notebook_tab = tk.Text(revision_stack_notebook_tab, height=4)
+description_text_area_all_notes_notebook = tk.Text(all_notes_notebook_tab, height=4)
+graph_text_area_frequent_paths_tab = tk.Text(frequent_paths_tab, height=4)
+
+# Text Area for the last data structure ... tbd
+
+# Align
+title_label_manipulate_notebook_tab.grid(column=0, row=1, columnspan=15)
+title_label_revision_queue_notebook_tab.grid(column=0, row=1, columnspan=15)
+title_label_revision_stack_notebook_tab.grid(column=0, row=1, columnspan=15)
+title_label_all_notes_notebook.grid(column=0, row=1, columnspan=15)
+description_label_manipulate_notebook_tab.grid(column=0, row=3, columnspan=15)
+description_label_revision_queue_notebook_tab.grid(column=0, row=3, columnspan=15)
+description_label_revision_stack_notebook_tab.grid(column=0, row=3, columnspan=15)
+description_label_all_notes_notebook.grid(column=0, row=3, columnspan=15)
+title_text_area_manipulate_notebook_tab.grid(column=0, row=2, columnspan=15)
+title_text_area_revision_queue_notebook_tab.grid(column=0, row=2, columnspan=15)
+title_text_area_revision_stack_notebook_tab.grid(column=0, row=2, columnspan=15)
+title_text_area_all_notes_notebook.grid(column=0, row=2, columnspan=15)
+description_text_area_manipulate_notebook_tab.grid(column=0, row=4, columnspan=15)
+description_text_area_revision_queue_notebook_tab.grid(column=0, row=4, columnspan=15)
+description_text_area_revision_stack_notebook_tab.grid(column=0, row=4, columnspan=15)
+description_text_area_all_notes_notebook.grid(column=0, row=4, columnspan=15)
+graph_text_area_frequent_paths_tab.grid(column=0, row=0, columnspan=15)
+
+"""
+    5.
+    Buttons for different tabs 
+"""
+# Buttons for manipulating database
+add_notes_button = ttk.Button(manipulate_notebook_tab, text="Add Note")
+delete_notes_button = ttk.Button(manipulate_notebook_tab, text="Delete Note")
+
+# Align buttons for manipulating database
+add_notes_button.grid(column=1, row=5)
+delete_notes_button.grid(column=0, row=5)
+
+# Buttons for moving forward in data structures
+next_note_button_all_notes_notebook_tab = ttk.Button(all_notes_notebook_tab, text="Next Note")
+next_note_button_revision_stack_notebook_tab = ttk.Button(revision_stack_notebook_tab, text="Next Note")
+next_note_button_revision_queue_notebook_tab = ttk.Button(revision_queue_notebook_tab, text="Next Note")
+
+# Align buttons for moving forward
+next_note_button_all_notes_notebook_tab.grid(column=0, row=5)
+next_note_button_revision_stack_notebook_tab.grid(column=0, row=5)
+next_note_button_revision_queue_notebook_tab.grid(column=0, row=5)
+
+"""
+    6. Connect to the mongo db database
+    -  Create the client connection
+    -  Get the right database
+    -  Get the right collection
+"""
+client = MongoClient("mongodb://localhost:27017")
+database = client["db_mongodb_notes"]
+collection = database["notes"]
+
+"""
+    7. Add all documents to the data table
+    -   Find all documents
+    -   For each document place it at a new row at the end of the table
+"""
+
+
+def clear_table():
+    # Method to delete data in table
+    for row in data_table.get_children():
+        data_table.delete(row)
+
+
+def refresh_table():
+    clear_table()
+    # Select everything in the database and insert in the table
+    all_documents = collection.find()
+    for doc in all_documents:
+        data_table.insert("", tk.END, values=(doc["Title"], doc["Content"]))
+
+
+# Method call to refresh the database
+refresh_table()
+
+"""
+    8. Method for getting text
+"""
+
+
+def get_text(data_field):
+    content = data_field.get("1.0", "end-1c")
+    return content
+
+
+"""
+    9. Get text and send to database ***Dictionary***
+    -  Will implement the dictionary data structure
+    -  Dictionary sets up the mongo db document
+    -  Document is sent to collection
+    -  Clear text areas
+    -  Refresh table to show all collections
+"""
+
+
+def add_note():
+    new_doc = {
+        "Title": get_text(title_text_area_manipulate_notebook_tab),
+        "Content": get_text(description_text_area_manipulate_notebook_tab)
+    }
+    collection.insert_one(new_doc)
+
+    title_text_area_manipulate_notebook_tab.delete("1.0", "end")
+    description_text_area_manipulate_notebook_tab.delete("1.0", "end")
+    refresh_table()
+
+
+# Set up the button to add data
+add_notes_button.config(command=add_note)
+
+"""
+    10. Delete selected item from database
+    - Get the title and the content from the viewable portion
+    - Delete the data that matches
+    - Clear text areas (From first character to the last) 
+    - Refresh the table to show all collections
+"""
+
+
+def del_note():
+    collection.delete_one({"Title": get_text(title_text_area_manipulate_notebook_tab),
+                           "Content": get_text(description_text_area_manipulate_notebook_tab)})
+
+    title_text_area_manipulate_notebook_tab.delete("1.0", "end")
+    description_text_area_manipulate_notebook_tab.delete("1.0", "end")
+    refresh_table()
+
+
+# Set up the button to delete data
+delete_notes_button.config(command=del_note)
+
+"""
+    11. Set up the table to get data into the fields on the manipulate database tab upon selection
+    - Clear anything if there
+    - Select the new content
+    - Add the new content
+"""
+
+
+def show_selected():
+    title_text_area_manipulate_notebook_tab.delete("1.0", "end")
+    description_text_area_manipulate_notebook_tab.delete("1.0", "end")
+    # This returns an item_id
+    selected_items = data_table.selection()
+
+    for item_id in selected_items:
+        # This gets the data stored under the found item_id:
+        # values[0]-> first column 1, values[1] -> second column....
+        values = data_table.item(item_id, "values")
+
+        # Place the data in attributes
+        title = values[0]
+        description = values[1]
+        title_text_area_manipulate_notebook_tab.insert("1.0", title)
+        description_text_area_manipulate_notebook_tab.insert("1.0", description)
+
+
+# Tell the button to carry out the specified function
+select_notes_button.config(command=show_selected)
+
+"""
+    12. Set up the All notes tab functionality -> ***Linked List***
+    - Set up the full linked list class: (Suggestion: singly linked for ease of coding and troubleshooting)
+            - Have a method to add data to the linked list
+            - Have a method to move forward in the linked list
+    - Set up the linked list to have all the notes from the database
+    - Set the next button **(next_note_button_all_notes_notebook_tab)** to allow forward traversal of the linked list
+    - Should you need them:
+            - The title text area is **()**
+            - The description text area is **()**        
+
+                ****Test to see all that you have done works👍You are the sole person responsible for this tab👍****
+
+    - Additional: * Can have a button to make it go back to the first note
+                  * If using a doubly linked list, can also add a button to go to the previous note
+                  * Any other functionality you deem fit
+"""
+
+### **** Member implementing 12, code goes here **** ###
+
+"""
+    13. Set up revision stack tab functionality -> ***Stack***
+    - Set up the stack class: (Suggestion: use the array or python list implementation to save time)
+            - Have a method to push to the stack
+            - Have a method to pop from the stack
+    - Set up the button **(add_to_revision_stack_button)** to add data to the stack
+    - Set up the button **(start_revision_stack_button)** to pop of the first value and place in the revision stack tab
+    - Should you need them: 
+            - The title text area is **(title_text_area_revision_stack_notebook_tab)**
+            - The description text area is **(description_text_area_revision_stack_notebook_tab)**
+    - Set up the next button **(next_note_button_revision_stack_notebook_tab)** to keep popping off the next value(and showing it) in the revision stack tab
+            - Have a way of showing the stack is now empty (Suggested: any further presses will show none)
+
+            ****Test to see all that you have done works👍You are the sole person responsible for this tab👍****
+
+    -Additional: * Any other functionality you deem fit
+"""
+
+#### **** Member implementing 13, code goes here  **** ###
+
+"""
+    14. Set up revision queue tab functionality -> ***Queue***
+    - Set up the queue class: (Suggestion: use the array or python list implementation to save time)
+            - Have a method to enqueue
+            - Have a method to dequeue
+    - Set up the button **(add_to_revision_queue_button)** to add data to the queue
+    - Set up the button **(start_revision_queue_button)** to dequeue the first value and place in the revision queue tab
+    - Should you need them:
+            - The title text area is **(title_text_area_revision_queue_notebook_tab)**
+            - The description text area is **(description_text_area_revision_queue_notebook_tab)**
+    - Set up the button **()** to keep on the dequeue process(and showing the value) in the revision queue tab
+            - Have a way of showing the queue is now empty (Suggested: any further presses will show none)
+
+            ****Test to see all that you have done works👍You are the sole person responsible for this tab👍****
+
+    - Additional: * Any other functionality you deem fit        
+
+"""
+
+#### **** Member implementing 14, code goes here  **** ###
+
+"""
+    15. Set up the frequent tab functionality -> ***Graph***
+    - Set up the graph: (Suggestion: Use the add node and the add edge functionality discussed in class)
+            - Have a method to add nodes
+            - Have a method to add edges
+
+    - You are free to set up the functions to be called at any point you deem fit:
+            - Suggestion: Alter the command attribute of the select_notes button
+                                                             add_to_revision_queue button
+                                                             add_to_revision_stack button
+             to also add nodes and edges in addition to what they already do.
+    - Print the adjacency list or the adjacency matrix used to set up the graph in the text area **(graph_text_area_frequent_paths_tab)**
+
+        ****Test to see all that you have done works👍Make sure it does not collide with work from anyone at the top👍****
+
+    - Additional: * Any other functionality you deem fit
+"""
+
+#### **** Member implementing 15, code goes here  **** ###
+
+"""
+    16. Final app tester
+    - Test the app to make sure everything works
+    - Generate the readme.md file specified in the project guidelines
+    - Generate a user guide
+    - Generate the final report (Keep it as simple as possible, other group members will contribute where necessary)
+
+            ****You will not write code other than to the README.md👍 IF you find any error, ask for the person responsible to resolve it👍****
+"""
+
+if __name__ == "__main__":
+    # Run the main function body
+    main_window.mainloop()
