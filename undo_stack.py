@@ -8,12 +8,16 @@ class Patient:
         return f"{self.name}, {self.id_number}, {self.illness}"
 
 class Stack:
-    def __init__(self):
+    def __init__(self,max_Size):
         self.stack = []
+        self.max_Size=max_Size
 
     def push(self, item):
-        self.stack.append(item)
-        print(f"Pushed {item}:")
+        if len(self.stack)>=self.max_Size:
+            print("Stack id Full!!Cannot Add more patients")
+        else:
+            self.stack.append(item)
+            print(f"Pushed {item}:")
 
     def pop(self):
         if self.is_empty():
@@ -24,12 +28,33 @@ class Stack:
         return len(self.stack) == 0
 
     def display(self):
-        print("Stack:", self.stack)
+        if self.is_empty():
+            print("Stack is empty")
+        else:
+            print("\nCurrent Patient in Stack")
+            for patient in reversed(self.stack):
+                print(f"{patient}")
 
+    def update_Patient(self,id_number,new_name=None,new_illness=None):
+        for patient in self.stack:
+            if patient.id_number==id_number:
+                old_info=str(patient)
+                if new_name:
+                    patient.name=new_name
+                if new_illness:
+                    patient.illness=new_illness
+                return old_info,patient
+            return None,None
+
+    def delete_patient(self,id_number):
+        for i in range(len(self.stack)):
+            if self.stack[i].id_number==id_number:
+                return self.stack.pop(i)
+            return None
 
 class Undo:
     def __init__(self):
-        self.undo_stack = Stack()
+        self.undo_stack = Stack(5)
 
     def add_info(self, info, patient):
         description = f"{info} {patient.name} - {patient.illness}"
@@ -47,33 +72,73 @@ class Undo:
         self.undo_stack.display()
 
 
-# Create patients
-p1 = Patient("Joseph", 10045, "Malaria")
-p2 = Patient("Maria", 10047, "Typhoid")
+def main():
+    MAX_STACK_SIZE = 5
+    patient_stack = Stack(MAX_STACK_SIZE)
+    undo_stack = Undo()
 
-# Create stacks
-patient_stack = Stack()
-undo_stack = Undo()
+    while True:
+        print("\n--- Patient Stack System ---")
+        print("1. Add Patient")
+        print("2. View All Patients")
+        print("3. Update Patient")
+        print("4. Delete Patient")
+        print("5. Undo Last Action")
+        print("6. View Undo Log")
+        print("7. Exit")
 
-# Add patients
-patient_stack.push(p1)
-undo_stack.add_info("Added", p1)
+        choice = input("Choose an option (1–7): ")
 
-patient_stack.push(p2)
-undo_stack.add_info("Added", p2)
+        if choice == "1":
+            if len(patient_stack.stack) >= patient_stack.max_size:
+                print("⚠️ Stack full. Cannot add more patients.")
+                continue
+            name = input("Enter patient name: ")
+            id_number = int(input("Enter ID number: "))
+            illness = input("Enter illness: ")
+            new_patient = Patient(name, id_number, illness)
+            patient_stack.push(new_patient)
+            undo_stack.add_info("Added", new_patient)
 
-# Pop a patient
-removed = patient_stack.pop()
-if isinstance(removed, Patient):
-    undo_stack.add_info("Deleted", removed)
+        elif choice == "2":
+            patient_stack.display()
 
-print("\n-- Patient Stack --")
-patient_stack.display()
+        elif choice == "3":
+            id_number = int(input("Enter ID of patient to update: "))
+            new_name = input("Enter new name (leave blank to skip): ").strip()
+            new_illness = input("Enter new illness (leave blank to skip): ").strip()
+            new_name = new_name if new_name else None
+            new_illness = new_illness if new_illness else None
+            old_info, updated_patient = patient_stack.update_patient(id_number, new_name, new_illness)
+            if updated_patient:
+                print(f" Updated to: {updated_patient}")
+                undo_stack.add_info("Updated", updated_patient)
+            else:
+                print(" Patient not found.")
 
-print("\n-- Undo Stack --")
-undo_stack.show_info()
+        elif choice == "4":
+            id_number = int(input("Enter ID of patient to delete: "))
+            removed = patient_stack.delete_patient(id_number)
+            if removed:
+                print(f"🗑Deleted: {removed}")
+                undo_stack.add_info("Deleted", removed)
+            else:
+                print("Patient not found.")
 
-print("\n-- Undoing Last Action --")
-undo_stack.undo_last_info()
+        elif choice == "5":
+            undo_stack.undo_last_info()
+
+        elif choice == "6":
+            undo_stack.show_info()
+
+        elif choice == "7":
+            print("Exiting the system.BYE BYE")
+            break
+
+        else:
+            print(" Invalid choice. Please try again.")
 
 
+# Run the program
+if __name__ == "__main__":
+    main()
