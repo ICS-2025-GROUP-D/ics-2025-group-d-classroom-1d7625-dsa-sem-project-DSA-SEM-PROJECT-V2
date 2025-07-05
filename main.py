@@ -286,6 +286,84 @@ select_notes_button.config(command=show_selected)
 
 ### **** Member implementing 12, code goes here **** ###
 
+# 1. Linked List Node
+class Node:
+    def __init__(self, title, content):
+        self.title = title
+        self.content = content
+        self.next = None
+
+# 2. Linked List
+class LinkedList:
+    def __init__(self):
+        self.head = None
+        self.current = None
+
+    def append(self, title, content):
+        new_node = Node(title, content)
+        if self.head is None:
+            self.head = new_node
+        else:
+            last = self.head
+            while last.next:
+                last = last.next
+            last.next = new_node
+
+    def reset(self):
+        self.current = self.head
+
+    def next(self):
+        if self.current is None:
+            return None
+        data = (self.current.title, self.current.content)
+        self.current = self.current.next
+        return data
+
+# 3. Create an instance of the Linked List
+all_notes_linked_list = LinkedList()
+
+#4. Load data from MongoDB into the linked list
+def load_notes_into_linked_list():
+    # Clear and repopulate the list
+    all_notes_linked_list.__init__()
+    all_documents = collection.find()
+    for doc in all_documents:
+        title = doc.get("title", "No Title Found")
+        content = doc.get("content", "No Content Found")
+        all_notes_linked_list.append(title, content)
+    all_notes_linked_list.reset()
+    show_next_note() # Show the first note
+
+#5. Show the next note
+def show_next_note():
+    note = all_notes_linked_list.next()
+    title_text_area_all_notes_notebook.delete("1.0", "end")
+    description_text_area_all_notes_notebook.delete("1.0", "end")
+    if note:
+        title, description = note
+        title_text_area_all_notes_notebook.insert("1.0", title)
+        description_text_area_all_notes_notebook.insert("1.0", description)
+    else: # To loop back to the start automatically
+        all_notes_linked_list.reset()
+        show_next_note()
+
+#6. Restart the first note explicitly
+def restart_notes():
+    all_notes_linked_list.reset()
+    show_next_note()
+
+# Button set up
+next_note_button_all_notes_notebook_tab.config(command=show_next_note)
+
+# Restart button on the 'All Notes' tab
+restart_notes_button_all_notes_notebook_tab = ttk.Button(all_notes_notebook_tab, text="Restart Notes")
+restart_notes_button_all_notes_notebook_tab.grid(column=1, row=5)
+restart_notes_button_all_notes_notebook_tab.config(command=restart_notes)
+
+# Load notes when the app starts
+load_notes_into_linked_list()
+
+
 """
     13. Set up revision stack tab functionality -> ***Stack***
     - Set up the stack class: (Suggestion: use the array or python list implementation to save time)
