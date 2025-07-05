@@ -159,16 +159,20 @@ def clear_table():
         data_table.delete(row)
 
 
+
 def refresh_table():
     clear_table()
-    # Select everything in the database and insert in the table
     all_documents = collection.find()
     for doc in all_documents:
-        data_table.insert("", tk.END, values=(doc["Title"], doc["Content"]))
+        title = doc.get("title", "No Title Found")
+        content = doc.get("content", "No Content Found")
+        data_table.insert("", tk.END, values=(title, content))
+
 
 
 # Method call to refresh the database
-refresh_table()
+
+
 
 """
     8. Method for getting text
@@ -192,14 +196,15 @@ def get_text(data_field):
 
 def add_note():
     new_doc = {
-        "Title": get_text(title_text_area_manipulate_notebook_tab),
-        "Content": get_text(description_text_area_manipulate_notebook_tab)
+        "title": get_text(title_text_area_manipulate_notebook_tab),
+        "content": get_text(description_text_area_manipulate_notebook_tab)
     }
     collection.insert_one(new_doc)
 
     title_text_area_manipulate_notebook_tab.delete("1.0", "end")
     description_text_area_manipulate_notebook_tab.delete("1.0", "end")
     refresh_table()
+
 
 
 # Set up the button to add data
@@ -215,12 +220,15 @@ add_notes_button.config(command=add_note)
 
 
 def del_note():
-    collection.delete_one({"Title": get_text(title_text_area_manipulate_notebook_tab),
-                           "Content": get_text(description_text_area_manipulate_notebook_tab)})
+    collection.delete_one({
+        "title": get_text(title_text_area_manipulate_notebook_tab),
+        "content": get_text(description_text_area_manipulate_notebook_tab)
+    })
 
     title_text_area_manipulate_notebook_tab.delete("1.0", "end")
     description_text_area_manipulate_notebook_tab.delete("1.0", "end")
     refresh_table()
+
 
 
 # Set up the button to delete data
@@ -292,6 +300,68 @@ select_notes_button.config(command=show_selected)
 
     -Additional: * Any other functionality you deem fit
 """
+
+
+#### **** Member implementing 13, code goes here  **** ###
+
+# 1. Stack Data Structure
+class Stack:
+    def __init__(self):
+        self.stack = []
+
+    def push(self, note):
+        self.stack.append(note)
+
+    def pop(self):
+        if not self.is_empty():
+            return self.stack.pop()
+        else:
+            return None
+
+    def is_empty(self):
+        return len(self.stack) == 0
+
+
+# 2. Create the stack instance
+revision_stack = Stack()
+
+
+# 3. Add note to stack when button is clicked
+def add_to_stack():
+    title = get_text(title_text_area_revision_stack_notebook_tab)
+    description = get_text(description_text_area_revision_stack_notebook_tab)
+
+    if title.strip() == "" and description.strip() == "":
+        return  # Do not add empty notes
+
+    # Push the note dictionary onto the stack
+    revision_stack.push({"Title": title, "Content": description})
+
+    # Clear the text areas after adding
+    title_text_area_revision_stack_notebook_tab.delete("1.0", "end")
+    description_text_area_revision_stack_notebook_tab.delete("1.0", "end")
+
+
+# 4. Start revision: pop a note and display it
+def start_revision():
+    note = revision_stack.pop()
+    if note:
+        title_text_area_revision_stack_notebook_tab.delete("1.0", "end")
+        description_text_area_revision_stack_notebook_tab.delete("1.0", "end")
+        title_text_area_revision_stack_notebook_tab.insert("1.0", note["Title"])
+        description_text_area_revision_stack_notebook_tab.insert("1.0", note["Content"])
+    else:
+        # If empty, show "No more notes"
+        title_text_area_revision_stack_notebook_tab.delete("1.0", "end")
+        description_text_area_revision_stack_notebook_tab.delete("1.0", "end")
+        title_text_area_revision_stack_notebook_tab.insert("1.0", "No more notes")
+        description_text_area_revision_stack_notebook_tab.insert("1.0", "")
+
+
+# 5. Bind the buttons
+add_to_revision_stack_button.config(command=add_to_stack)
+start_revision_stack_button.config(command=start_revision)
+next_note_button_revision_stack_notebook_tab.config(command=start_revision)
 
 #### **** Member implementing 13, code goes here  **** ###
 
