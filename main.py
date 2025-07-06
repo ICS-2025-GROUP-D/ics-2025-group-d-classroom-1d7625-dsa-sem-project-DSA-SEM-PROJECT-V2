@@ -173,9 +173,8 @@ def refresh_table():
 
 
 
-# Method call to refresh the database
-
-
+# Method call to refresh the table as a first instance
+refresh_table()
 
 """
     8. Method for getting text
@@ -363,6 +362,21 @@ restart_notes_button_all_notes_notebook_tab.config(command=restart_notes)
 # Load notes when the app starts
 load_notes_into_linked_list()
 
+#Make the load notes occur anytime a note is added or deleted
+def add_notes_button_functionality():
+    add_note()
+    load_notes_into_linked_list()
+
+add_notes_button.config(command=add_notes_button_functionality)
+
+
+def del_notes_button_functionality():
+    del_note()
+    load_notes_into_linked_list()
+
+delete_notes_button.config(command=del_notes_button_functionality)
+
+
 
 """
     13. Set up revision stack tab functionality -> ***Stack***
@@ -463,7 +477,7 @@ next_note_button_revision_stack_notebook_tab.config(command=start_revision)
 
     - Additional: * Any other functionality you deem fit        
 
-"""
+# """
 #Queue implementation#
 class RevisionQueue:
     def __init__(self):
