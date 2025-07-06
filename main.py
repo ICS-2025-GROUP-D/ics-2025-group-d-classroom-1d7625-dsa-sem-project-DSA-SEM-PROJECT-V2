@@ -349,15 +349,15 @@ def restart_notes():
     all_notes_linked_list.reset()
     show_next_note()
 
-# Button set up
+#7. Button set up
 next_note_button_all_notes_notebook_tab.config(command=show_next_note)
 
-# Restart button on the 'All Notes' tab
+#8. Restart button on the 'All Notes' tab
 restart_notes_button_all_notes_notebook_tab = ttk.Button(all_notes_notebook_tab, text="Restart Notes")
 restart_notes_button_all_notes_notebook_tab.grid(column=1, row=5)
 restart_notes_button_all_notes_notebook_tab.config(command=restart_notes)
 
-# Load notes when the app starts
+#9. Load notes when the app starts
 load_notes_into_linked_list()
 
 
