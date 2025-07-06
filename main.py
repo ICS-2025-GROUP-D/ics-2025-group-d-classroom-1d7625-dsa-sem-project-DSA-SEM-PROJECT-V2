@@ -1,6 +1,9 @@
 import tkinter as tk
 from pymongo import MongoClient
 from tkinter import ttk
+from tkinter import messagebox  # Ensure this is imported
+
+
 
 """
     1.
@@ -170,9 +173,8 @@ def refresh_table():
 
 
 
-# Method call to refresh the database
-
-
+# Method call to refresh the table as a first instance
+refresh_table()
 
 """
     8. Method for getting text
@@ -360,6 +362,21 @@ restart_notes_button_all_notes_notebook_tab.config(command=restart_notes)
 #9. Load notes when the app starts
 load_notes_into_linked_list()
 
+#Make the load notes occur anytime a note is added or deleted
+def add_notes_button_functionality():
+    add_note()
+    load_notes_into_linked_list()
+
+add_notes_button.config(command=add_notes_button_functionality)
+
+
+def del_notes_button_functionality():
+    del_note()
+    load_notes_into_linked_list()
+
+delete_notes_button.config(command=del_notes_button_functionality)
+
+
 
 """
     13. Set up revision stack tab functionality -> ***Stack***
@@ -460,7 +477,84 @@ next_note_button_revision_stack_notebook_tab.config(command=start_revision)
 
     - Additional: * Any other functionality you deem fit        
 
-"""
+# """
+#Queue implementation#
+class RevisionQueue:
+    def __init__(self):
+        self.queue = []
+
+    def enqueue(self, note):
+        self.queue.append(note)
+
+    def dequeue(self):
+        if self.queue:
+            return self.queue.pop(0)
+        return None
+
+    def is_empty(self):
+        return len(self.queue) == 0
+
+# ---- Step 2: Queue Instance ----
+revision_queue = RevisionQueue()
+
+# ---- Step 3: Button Functions ----
+
+def add_to_revision_queue():
+    global notes_collection
+    title = title_text_area_revision_queue_notebook_tab.get("1.0", tk.END).strip()
+    description = description_text_area_revision_queue_notebook_tab.get("1.0", tk.END).strip()
+    if title and description:
+        note = {"title": title, "description": description}
+        revision_queue.enqueue(note)
+        notes_collection.insert_one(note)  # Save to MongoDB
+        messagebox.showinfo("Added", "Note added to revision queue and saved.")
+        title_text_area_revision_queue_notebook_tab.delete("1.0", tk.END)
+        description_text_area_revision_queue_notebook_tab.delete("1.0", tk.END)
+    else:
+        messagebox.showwarning("Missing Info", "Please fill in both title and description.")
+
+def start_revision_queue():
+    if revision_queue.is_empty():
+        title_text_area_revision_queue_notebook_tab.delete("1.0", tk.END)
+        description_text_area_revision_queue_notebook_tab.delete("1.0", tk.END)
+        messagebox.showinfo("Done", "Revision queue is empty.")
+    else:
+        note = revision_queue.dequeue()
+        title_text_area_revision_queue_notebook_tab.delete("1.0", tk.END)
+        description_text_area_revision_queue_notebook_tab.delete("1.0", tk.END)
+        title_text_area_revision_queue_notebook_tab.insert(tk.END, note["title"])
+        description_text_area_revision_queue_notebook_tab.insert(tk.END, note["description"])
+
+def keep_dequeuing_notes():
+    if revision_queue.is_empty():
+        title_text_area_revision_queue_notebook_tab.delete("1.0", tk.END)
+        description_text_area_revision_queue_notebook_tab.delete("1.0", tk.END)
+        messagebox.showinfo("Queue Empty", "All notes revised.")
+        return
+    else:
+        note = revision_queue.dequeue()
+        title_text_area_revision_queue_notebook_tab.delete("1.0", tk.END)
+        description_text_area_revision_queue_notebook_tab.delete("1.0", tk.END)
+        title_text_area_revision_queue_notebook_tab.insert(tk.END, note["title"])
+        description_text_area_revision_queue_notebook_tab.insert(tk.END, note["description"])
+        title_text_area_revision_queue_notebook_tab.after(3000, keep_dequeuing_notes)
+
+# ---- Step 4: Buttons for Queue Tab ----
+
+add_to_revision_queue_button = tk.Button(
+    main_window, text="Add to Revision Queue", command=add_to_revision_queue, name="add_to_revision_queue_button"
+)
+add_to_revision_queue_button.pack(pady=5)
+
+start_revision_queue_button = tk.Button(
+    main_window, text="Start Revision Queue", command=start_revision_queue, name="start_revision_queue_button"
+)
+start_revision_queue_button.pack(pady=5)
+
+keep_revision_queue_button = tk.Button(
+    main_window, text="Keep Revising (Auto)", command=keep_dequeuing_notes
+)
+keep_revision_queue_button.pack(pady=5)
 
 #### **** Member implementing 14, code goes here  **** ###
 
