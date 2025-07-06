@@ -362,16 +362,16 @@ restart_notes_button_all_notes_notebook_tab.config(command=restart_notes)
 #9. Load notes when the app starts
 load_notes_into_linked_list()
 
-#Make the load notes occur anytime a note is added or deleted
+#10. Make the load notes occur anytime a note is added or deleted
 def add_notes_button_functionality():
-    add_note()
-    load_notes_into_linked_list()
+    add_note() # adds to the DB
+    load_notes_into_linked_list() # reloads Linked List from the DB
 
 add_notes_button.config(command=add_notes_button_functionality)
 
 
 def del_notes_button_functionality():
-    del_note()
+    del_note() # deletes from the DB
     load_notes_into_linked_list()
 
 delete_notes_button.config(command=del_notes_button_functionality)
