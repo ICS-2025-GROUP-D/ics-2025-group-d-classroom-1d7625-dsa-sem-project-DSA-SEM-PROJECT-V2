@@ -97,6 +97,9 @@ description_text_area_all_notes_notebook = tk.Text(all_notes_notebook_tab, heigh
 graph_text_area_frequent_paths_tab = tk.Text(frequent_paths_tab, height=4)
 
 # Text Area for the last data structure ... tbd
+def update_graph_display():
+    graph_text_area_frequent_paths_tab.delete("1.0","end")
+    graph_text_area_frequent_paths_tab.insert("1.0",note_graph.get_adjacency_list())
 
 # Align
 title_label_manipulate_notebook_tab.grid(column=0, row=1, columnspan=15)
@@ -176,7 +179,6 @@ def refresh_table():
 # Method call to refresh the database
 
 
-
 """
     8. Method for getting text
 """
@@ -246,6 +248,7 @@ delete_notes_button.config(command=del_note)
 
 
 def show_selected():
+    global last_selected_note_title # start defining the function when a note is selected from the table
     title_text_area_manipulate_notebook_tab.delete("1.0", "end")
     description_text_area_manipulate_notebook_tab.delete("1.0", "end")
     # This returns an item_id
@@ -261,6 +264,12 @@ def show_selected():
         description = values[1]
         title_text_area_manipulate_notebook_tab.insert("1.0", title)
         description_text_area_manipulate_notebook_tab.insert("1.0", description)
+
+        #graph update: mark this as the last selected node
+        note_graph.add_node(title)
+        last_selected_note_title=title
+
+        update_graph_display()
 
 
 # Tell the button to carry out the specified function
@@ -409,6 +418,8 @@ revision_stack = Stack()
 
 # 3. Add note to stack when button is clicked
 def add_to_stack():
+    print("add_to_stack() was called")  # Add this line at the top
+    global last_selected_note_title 
     title = get_text(title_text_area_revision_stack_notebook_tab)
     description = get_text(description_text_area_revision_stack_notebook_tab)
 
@@ -418,11 +429,18 @@ def add_to_stack():
     # Push the note dictionary onto the stack
     revision_stack.push({"Title": title, "Content": description})
 
+    note_graph.add_node(title)
+    if last_selected_note_title:
+        note_graph.add_edge(last_selected_note_title, title)
+
+    update_graph_display()
     # Clear the text areas after adding
     title_text_area_revision_stack_notebook_tab.delete("1.0", "end")
     description_text_area_revision_stack_notebook_tab.delete("1.0", "end")
+    messagebox.showinfo("Added", "Note added to revision stack and saved.")
 
-
+add_to_revision_stack_button.config(command=add_to_stack)
+  
 # 4. Start revision: pop a note and display it
 def start_revision():
     note = revision_stack.pop()
@@ -486,18 +504,35 @@ revision_queue = RevisionQueue()
 # ---- Step 3: Button Functions ----
 
 def add_to_revision_queue():
-    global notes_collection
+    print("add_to_revision_queue was called")
+
+    global last_selected_note_title
+
     title = title_text_area_revision_queue_notebook_tab.get("1.0", tk.END).strip()
-    description = description_text_area_revision_queue_notebook_tab.get("1.0", tk.END).strip()
-    if title and description:
-        note = {"title": title, "description": description}
+    content = description_text_area_revision_queue_notebook_tab.get("1.0", tk.END).strip()
+
+    if not last_selected_note_title:
+        messagebox.showwarning("No Selection", "Please select a note first.")
+        return
+    
+    if title and content:
+        note = {"title": title, "content": content}
         revision_queue.enqueue(note)
-        notes_collection.insert_one(note)  # Save to MongoDB
+        collection.insert_one(note)  # Save to MongoDB
+       
+        #graph logic
+        note_graph.add_node(title)
+        note_graph.add_edge(last_selected_note_title,title)
+        
+        print("last selecte note:",last_selected_note_title)
+        update_graph_display()
+
         messagebox.showinfo("Added", "Note added to revision queue and saved.")
         title_text_area_revision_queue_notebook_tab.delete("1.0", tk.END)
         description_text_area_revision_queue_notebook_tab.delete("1.0", tk.END)
     else:
         messagebox.showwarning("Missing Info", "Please fill in both title and description.")
+add_to_revision_queue_button.config(command=add_to_revision_queue)
 
 def start_revision_queue():
     if revision_queue.is_empty():
@@ -516,7 +551,7 @@ def keep_dequeuing_notes():
         title_text_area_revision_queue_notebook_tab.delete("1.0", tk.END)
         description_text_area_revision_queue_notebook_tab.delete("1.0", tk.END)
         messagebox.showinfo("Queue Empty", "All notes revised.")
-        return
+        return 
     else:
         note = revision_queue.dequeue()
         title_text_area_revision_queue_notebook_tab.delete("1.0", tk.END)
@@ -526,21 +561,22 @@ def keep_dequeuing_notes():
         title_text_area_revision_queue_notebook_tab.after(3000, keep_dequeuing_notes)
 
 # ---- Step 4: Buttons for Queue Tab ----
+# not required because button are already defined at the top
 
-add_to_revision_queue_button = tk.Button(
-    main_window, text="Add to Revision Queue", command=add_to_revision_queue, name="add_to_revision_queue_button"
-)
-add_to_revision_queue_button.pack(pady=5)
+# add_to_revision_queue_button = tk.Button(
+#     main_window, text="Add to Revision Queue", command=add_to_revision_queue, name="add_to_revision_queue_button"
+# )
+# add_to_revision_queue_button.pack(pady=5)
 
-start_revision_queue_button = tk.Button(
-    main_window, text="Start Revision Queue", command=start_revision_queue, name="start_revision_queue_button"
-)
-start_revision_queue_button.pack(pady=5)
+# start_revision_queue_button = tk.Button(
+#     main_window, text="Start Revision Queue", command=start_revision_queue, name="start_revision_queue_button"
+# )
+# start_revision_queue_button.pack(pady=5)
 
-keep_revision_queue_button = tk.Button(
-    main_window, text="Keep Revising (Auto)", command=keep_dequeuing_notes
-)
-keep_revision_queue_button.pack(pady=5)
+# keep_revision_queue_button = tk.Button(
+#     main_window, text="Keep Revising (Auto)", command=keep_dequeuing_notes
+# )
+# keep_revision_queue_button.pack(pady=5)
 
 #### **** Member implementing 14, code goes here  **** ###
 
@@ -561,6 +597,33 @@ keep_revision_queue_button.pack(pady=5)
 
     - Additional: * Any other functionality you deem fit
 """
+#graph data struture
+class Graph:
+    def __init__(self):
+        self.adjacency = {} #key: node title, value: list of connected titles
+    
+    # adds a new note(node) to the graph
+    def add_node(self,title):
+        if title not in self.adjacency:
+            self.adjacency[title]=[]
+
+    # create a connection (edge) btwn two notes
+    def add_edge(self, title1, title2):
+        self.add_node(title1)
+        self.add_node(title2)
+        if title2 not in self.adjacency[title1]:
+            self.adjacency[title1].append(title2)
+
+    #generates a printable string of the graphs connections
+    def get_adjacency_list(self):
+        result=""
+        for node,neighbors in self.adjacency.items():
+            result += f"{node} → {', '.join(neighbors)}\n"
+        return result
+
+# create a graph instance and tracker
+note_graph = Graph()
+last_selected_note_title= None # tracks note to create edges 
 
 #### **** Member implementing 15, code goes here  **** ###
 
