@@ -38,18 +38,24 @@ class Stack:
     def update_patient(self,id_number,new_name=None,new_illness=None):
         for patient in self.stack:
             if patient.id_number==id_number:
-                old_info=str(patient)
+                old_patient = Patient(patient.name, patient.id_number, patient.illness)
+
                 if new_name:
                     patient.name=new_name
                 if new_illness:
                     patient.illness=new_illness
-                return old_info,patient
+                return old_patient,patient
         return None,None
 
     def delete_patient(self,id_number):
-        for i in range(len(self.stack)):
-            if self.stack[i].id_number==id_number:
-                return self.stack.pop(i)
+        if self.is_empty():
+            print("Stack is empty-Nothing can be deleted")
+            return None
+        top_patient=self.stack[-1]
+        if top_patient.id_number==id_number:
+            return self.stack.pop()
+        else:
+            print(f"Top patient ID is {top_patient.id_number}, not {id_number}. Cannot delete.")
             return None
 
 class Undo:
@@ -72,7 +78,18 @@ class Undo:
                 print(" Patient restored to stack.")
             else:
                 print(" Cannot undo delete — patient stack is full.")
+        elif action == "Added":
+            patient_stack.delete_patient(patient_data.id_number)
+            print(" Patient addition undone.")
 
+        elif action == "Updated":
+            old_patient, _ = patient_data
+            patient_stack.update_patient(
+                old_patient.id_number,
+                new_name=old_patient.name,
+                new_illness=old_patient.illness
+            )
+            print(" Update undone — patient info restored.")
     def show_info(self):
         self.undo_stack.display()
 
@@ -114,7 +131,7 @@ def main():
             patient_stack.display()
 
         elif choice == "3":
-            id_input = input("Enter ID of patient to delete: ").strip()
+            id_input = input("Enter ID of patient to update: ").strip()
             if not id_input.isdigit():
                 print(" Invalid input! Please enter a valid numeric ID.")
                 return  # or continue, depending on your loop structure
@@ -124,7 +141,7 @@ def main():
             new_illness = input("Enter new illness (leave blank to skip): ").strip()
             new_name = new_name if new_name else None
             new_illness = new_illness if new_illness else None
-            old_info, updated_patient = patient_stack.update_patient(id_number, new_name, new_illness)
+            old_patient, updated_patient = patient_stack.update_patient(id_number, new_name, new_illness)
             if updated_patient:
                 print(f"Updated to: {updated_patient}")
                 undo_stack.add_info("Updated", updated_patient)
@@ -136,9 +153,13 @@ def main():
 
         elif choice == "4":
             id_number = int(input("Enter ID of patient to delete: "))
+            if not id_input.isdigit():
+                print(" Invalid input! Please enter a valid numeric ID.")
+                return
+            id_number = int(id_input)
             removed = patient_stack.delete_patient(id_number)
             if removed:
-                print(f"🗑Deleted: {removed}")
+                print(f"Deleted: {removed}")
                 undo_stack.add_info("Deleted", removed)
             else:
                 print("Patient not found.")
