@@ -1,5 +1,5 @@
-from emergency_heap import EmergencyHeap
-from patient import Patient
+from src.data_structures.heap import EmergencyHeap
+from src.data_structures.patient import Patient
 
 def test_admit_patient():
     heap = EmergencyHeap()

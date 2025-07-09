@@ -1,7 +1,7 @@
 # tests/test_hospital.py
 
 import unittest
-from src.data_structures.linked_list.linkedlist import HospitalLinkedList
+from src.data_structures.linkedlist import HospitalLinkedList
 
 
 class TestHospitalLinkedList(unittest.TestCase):
