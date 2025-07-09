@@ -1,6 +1,4 @@
 
-
-
 from src.data_structures.bst import PatientBST
 
 def test_insert_and_search():
