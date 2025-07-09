@@ -14,7 +14,7 @@ def create_device_controls(root):
 
     ctk.CTkLabel(wifi_frame, textvariable=wifi_switch_var, font=("Arial", 17), text_color='#FDFEFE').place(x=10, y=6)
     ctk.CTkLabel(wifi_frame, image=ctk.CTkImage(light_image=Image.open("images/wifi.png"), size=(40, 40)), text="").place(x=52, y=40)
-    ctk.CTkLabel(wifi_frame, text="Nest Wifi", font=("Arial", 12), text_color='#FDFEFE').place(x=48, y=83)
+    ctk.CTkLabel(wifi_frame, text="Home Wifi", font=("Arial", 12), text_color='#FDFEFE').place(x=48, y=83)
     ctk.CTkLabel(wifi_frame, text="Connected", font=("Arial", 10), text_color='#FDFEFE').place(x=46, y=105)
 
     # TV
