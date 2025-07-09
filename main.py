@@ -3,6 +3,8 @@ from bson.objectid import ObjectId
 from linkedlist import LinkedList, Node # <-- Import LinkedList and Node classes
 from queue_module import FlashcardQueue # <-- Import FlashcardQueue class
 from datetime import datetime
+from linkedlist import LinkedList, Node 
+from queue_module import FlashcardQueue
 
 class FlashcardDB:
     def __init__(self, connection_string, db_name="flashcard_app", collection_name="flashcards"):
