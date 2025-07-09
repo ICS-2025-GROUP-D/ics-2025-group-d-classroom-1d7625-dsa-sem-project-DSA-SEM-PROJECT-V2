@@ -5,7 +5,7 @@ from bson import ObjectId  # Simulate MongoDB-style unique IDs
 from ReviewHistory import ReviewHistory
 from linkedlist import Node  # ✅ Updated import
 
-
+# Create mock flashcards using the Node class
 mock_node1 = Node("What is Python?", "A high-level programming language", ObjectId())
 mock_node2 = Node("What is 2 + 2?", "4", ObjectId())
 
