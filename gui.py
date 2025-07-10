@@ -202,27 +202,78 @@ class MovieTrackerGUI:
     """Delete selected movie"""
     selected = self.tree.selection()
     if not selected:
-      messagebox.showwarning("Warning", "Please select a movie first!")
-      return
-
-    title = self.tree.item(selected)['values'][0]
+        messagebox.showwarning("Warning", "Please select a movie first!")
+        return
+        
+    title = self.tree.item(selected[0])['values'][0]
     if messagebox.askyesno("Confirm", f"Delete '{title}' permanently?"):
-      # Need to implement delete_movie in backend
-      if self.tracker.delete_movie(title):
-        self.load_movies()
-        self.log(f"Deleted movie: {title}")
-      else:
-        messagebox.showerror("Error", "Failed to delete movie")
+        if self.tracker.delete_movie(title):
+            self.load_movies()  # Refresh the table
+            self.log(f"Deleted movie: {title}")
+        else:
+            messagebox.showerror("Error", "Failed to delete movie")
 
   def edit_movie(self):
-    """Edit selected movie details"""
-    selected = self.tree.selection()
-    if not selected:
-      messagebox.showwarning("Warning", "Please select a movie first!")
-      return
-
-    # Similar to add_form but with existing values
-    pass  # Implementation would mirror show_add_form but with update logic
+      """Edit selected movie details"""
+      selected = self.tree.selection()
+      if not selected:
+          messagebox.showwarning("Warning", "Please select a movie first!")
+          return
+          
+      title = self.tree.item(selected[0])['values'][0]
+      movie = self.tracker.search_movie(title)
+      
+      # Create edit dialog
+      dialog = tk.Toplevel(self.root)
+      dialog.title(f"Edit: {title}")
+      dialog.geometry("300x200")
+      
+      # Form fields with current values
+      ttk.Label(dialog, text="Title:").grid(row=0, column=0, padx=5, pady=5, sticky=tk.E)
+      title_entry = ttk.Entry(dialog)
+      title_entry.grid(row=0, column=1, padx=5, pady=5, sticky=tk.W)
+      title_entry.insert(0, movie['title'])
+      
+      ttk.Label(dialog, text="Genre:").grid(row=1, column=0, padx=5, pady=5, sticky=tk.E)
+      genre_entry = ttk.Entry(dialog)
+      genre_entry.grid(row=1, column=1, padx=5, pady=5, sticky=tk.W)
+      genre_entry.insert(0, movie['genre'])
+      
+      ttk.Label(dialog, text="Rating (1-5):").grid(row=2, column=0, padx=5, pady=5, sticky=tk.E)
+      rating_entry = ttk.Spinbox(dialog, from_=1, to=5)
+      rating_entry.grid(row=2, column=1, padx=5, pady=5, sticky=tk.W)
+      rating_entry.set(movie['rating'])
+      
+      ttk.Label(dialog, text="Year:").grid(row=3, column=0, padx=5, pady=5, sticky=tk.E)
+      year_entry = ttk.Entry(dialog)
+      year_entry.grid(row=3, column=1, padx=5, pady=5, sticky=tk.W)
+      year_entry.insert(0, movie['year'])
+      
+      # Submit button
+      def submit():
+          new_title = title_entry.get()
+          new_genre = genre_entry.get()
+          new_rating = int(rating_entry.get())
+          new_year = year_entry.get()
+          
+          if not new_title:
+              messagebox.showerror("Error", "Title is required!")
+              return
+              
+          # First delete the old movie
+          if not self.tracker.delete_movie(title):
+              messagebox.showerror("Error", "Failed to update movie!")
+              return
+              
+          # Then add as new movie
+          if self.tracker.add_movie(new_title, new_genre, new_rating, new_year):
+              self.load_movies()
+              self.log(f"Updated movie: {new_title}")
+              dialog.destroy()
+          else:
+              messagebox.showerror("Error", "Failed to update movie!")
+      
+      ttk.Button(dialog, text="Save Changes", command=submit).grid(row=4, column=1, pady=10)
 
   def show_details(self):
     """Show detailed view of selected movie"""
