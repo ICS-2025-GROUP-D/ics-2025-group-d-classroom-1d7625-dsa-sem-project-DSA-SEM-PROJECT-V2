@@ -107,12 +107,12 @@ For help, contact the instructor at [bgithenya@strathmore.edu](mailto:bgithenya@
 
 - Developed by:
 
-  - 180954 Mayabi Muigai Ivan
-  - 189990 Albert Miricho
-  - 190497 Sydney Aisha
-  - 189925 Manvin Chager
-  - 192565 Kristie Wanjau
-  - 122787 Kevin Ndyabandikho
+  - `180954 Mayabi Muigai Ivan`
+  - `189990 Albert Miricho`
+  - `190497 Sydney Aisha`
+  - `189925 Manvin Chager`
+  - `192565 Kristie Wanjau`
+  - `122787 Kevin Ndyabandiho`
 
 - For DSA Semester Project, Strathmore University
 
