@@ -193,6 +193,66 @@ class MovieTracker:
     def close(self):
         """Clean up resources"""
         self.db.close()
+    def delete_movie(self, title):
+      """Delete a movie from all data structures and database"""
+      try:
+        # Remove from Hash Table
+        if title in self.movies_db:
+          del self.movies_db[title]
+
+        # Remove from BST
+        self.bst_root = self._delete_bst_node(self.bst_root, title)
+
+        # Remove from Queue/Stack
+        self.watchlist = [m for m in self.watchlist if m['title'] != title]
+        self.watched_history = [m for m in self.watched_history if m['title'] != title]
+
+        # Delete from database
+        cursor = self.db.conn.cursor()
+        cursor.execute("DELETE FROM movies WHERE title = ?", (title,))
+        self.db.conn.commit()
+        return True
+      except Error as e:
+        print(f"Error deleting movie: {e}")
+        return False
+
+    def _delete_bst_node(self, node, title):
+        """Helper method to delete node from BST"""
+        if node is None:
+          return node
+    
+        # Search for the node to delete
+        if title < node.movie['title']:
+          node.left = self._delete_bst_node(node.left, title)
+        elif title > node.movie['title']:
+          node.right = self._delete_bst_node(node.right, title)
+        else:
+          # Node found - handle deletion cases
+    
+          # Case 1: Node with only one child or no child
+          if node.left is None:
+            return node.right
+          elif node.right is None:
+            return node.left
+    
+          # Case 2: Node with two children
+          # Get the inorder successor (smallest in right subtree)
+          temp = self._min_value_node(node.right)
+    
+          # Copy the successor's content to this node
+          node.movie = temp.movie
+    
+          # Delete the inorder successor
+          node.right = self._delete_bst_node(node.right, temp.movie['title'])
+    
+        return node
+
+    def _min_value_node(self, node):
+        """Find the node with minimum value (leftmost leaf)"""
+        current = node
+        while current.left is not None:
+          current = current.left
+        return current
 
 ## ====================== USAGE EXAMPLE ====================== ##
 if __name__ == '__main__':
