@@ -17,6 +17,7 @@ import customtkinter as ctk # type: ignore
 from widgets.room_tabs import create_room_tabs
 from utils.helpers import get_current_time
 from widgets.device_section import create_device_controls
+from widgets.weather_section import create_weather_section
  
 class SmartHomeApp(ctk.CTk):
     def __init__(self):
@@ -36,6 +37,7 @@ class SmartHomeApp(ctk.CTk):
 
         create_room_tabs(self)
         create_device_controls(self)
+        create_weather_section(self)
 
 if __name__ == "__main__":
     app = SmartHomeApp()
