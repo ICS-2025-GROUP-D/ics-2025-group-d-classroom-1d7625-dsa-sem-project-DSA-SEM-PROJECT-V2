@@ -35,17 +35,22 @@ class Stack:
             for patient in reversed(self.stack):
                 print(f"{patient}")
 
-    def update_patient(self,id_number,new_name=None,new_illness=None):
-        for patient in self.stack:
-            if patient.id_number==id_number:
-                old_patient = Patient(patient.name, patient.id_number, patient.illness)
+    def update_patient(self, id_number, new_name=None, new_illness=None):
+        if self.is_empty():
+            print("Stack is empty - no update possible.")
+            return None, None
 
-                if new_name:
-                    patient.name=new_name
-                if new_illness:
-                    patient.illness=new_illness
-                return old_patient,patient
-        return None,None
+        top_patient = self.stack[-1]
+        if top_patient.id_number == id_number:
+            old_patient = Patient(top_patient.name, top_patient.id_number, top_patient.illness)
+            if new_name:
+                top_patient.name = new_name
+            if new_illness:
+                top_patient.illness = new_illness
+            return old_patient, top_patient
+        else:
+            print(f"Update failed: Top patient ID is {top_patient.id_number}, not {id_number}.")
+            return None, None
 
     def delete_patient(self,id_number):
         if self.is_empty():
@@ -79,15 +84,14 @@ class Undo:
             else:
                 print(" Cannot undo delete — patient stack is full.")
         elif action == "Added":
-            patient_stack.delete_patient(patient_data.id_number)
+            patient_stack.delete_patient(patient.id_number)
             print(" Patient addition undone.")
 
         elif action == "Updated":
-            old_patient, _ = patient_data
             patient_stack.update_patient(
-                old_patient.id_number,
-                new_name=old_patient.name,
-                new_illness=old_patient.illness
+                patient.id_number,
+                new_name=patient.name,
+                new_illness=patient.illness
             )
             print(" Update undone — patient info restored.")
     def show_info(self):
@@ -106,8 +110,7 @@ def main():
         print("3. Update Patient")
         print("4. Delete Patient")
         print("5. Undo Last Action")
-        print("6. View Undo Log")
-        print("7. Exit")
+        print("6. Exit")
 
         choice = input("Choose an option (1–7): ")
 
@@ -131,7 +134,7 @@ def main():
             patient_stack.display()
 
         elif choice == "3":
-            id_input = input("Enter ID of patient to update: ").strip()
+            id_input = input("Enter ID of patient to update(top): ").strip()
             if not id_input.isdigit():
                 print(" Invalid input! Please enter a valid numeric ID.")
                 return  # or continue, depending on your loop structure
@@ -144,34 +147,30 @@ def main():
             old_patient, updated_patient = patient_stack.update_patient(id_number, new_name, new_illness)
             if updated_patient:
                 print(f"Updated to: {updated_patient}")
-                undo_stack.add_info("Updated", updated_patient)
-                print("\nUpdated Patient Stack:")
-                patient_stack.display()  #show the updated stack
+                undo_stack.add_info("Updated", old_patient)
+                patient_stack.display()
 
             else:
-                print(" Patient not found.")
+                print(" Patient not found.Update failed!!")
+
 
         elif choice == "4":
-            id_number = int(input("Enter ID of patient to delete: "))
+            id_input = input("Enter ID of patient to delete(top): ").strip()
             if not id_input.isdigit():
                 print(" Invalid input! Please enter a valid numeric ID.")
-                return
+                continue
             id_number = int(id_input)
             removed = patient_stack.delete_patient(id_number)
             if removed:
                 print(f"Deleted: {removed}")
                 undo_stack.add_info("Deleted", removed)
             else:
-                print("Patient not found.")
+                print("Patient not found(Only remove top patient).")
 
         elif choice == "5":
             undo_stack.undo_last_info(patient_stack)
 
-
         elif choice == "6":
-            undo_stack.show_info()
-
-        elif choice == "7":
             print("Exiting the system.BYE BYE")
             break
 
@@ -182,3 +181,5 @@ def main():
 # Run the program
 if __name__ == "__main__":
     main()
+
+
