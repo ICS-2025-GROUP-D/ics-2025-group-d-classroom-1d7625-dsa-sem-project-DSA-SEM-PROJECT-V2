@@ -1,4 +1,3 @@
-# waiting_queue.py  –– replace ONLY this class block
 from collections import deque
 
 class WaitingQueue:
