@@ -1,7 +1,12 @@
+import sys
+import os
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'src')))
+
 from pymongo import MongoClient
 from bson.objectid import ObjectId
-from linkedlist import LinkedList, Node # <-- Import LinkedList and Node classes
-from queue_module import FlashcardQueue # <-- Import FlashcardQueue class
+from linkedlist import LinkedList, Node
+from queue_module import FlashcardQueue
 from datetime import datetime
 from linkedlist import LinkedList, Node 
 from CategoryManager import CategoryManager
