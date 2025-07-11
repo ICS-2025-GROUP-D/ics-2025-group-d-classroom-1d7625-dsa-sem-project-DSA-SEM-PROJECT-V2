@@ -1,7 +1,10 @@
+from datetime import datetime
+from pymongo.mongo_client import MongoClient
+from pymongo.server_api import ServerApi
+from main import FlashcardDB
 import tkinter as tk
 from tkinter import ttk, messagebox
 import random
-from datetime import datetime
 
 class FlashCard:
     def __init__(self, front, back, category="General", last_reviewed=None, difficulty=1):
@@ -18,15 +21,20 @@ class FlashCardApp:
         self.window.title("Flash Card System")
         self.window.geometry("800x600")
         
-        # Sample flash cards date
-        MONGO_URI = "mongodb+srv://mmuwale12:12345@flashcardappcluster.sqpcmki.mongodb.net/?retryWrites=true&w=majority&appName=FlashCardAppCluster"
-        self.manager = FlashcardManager(MONGO_URI)
-        
+        MONGO_URI = "mongodb+srv://dominicwaithaka6:12345@flashcardappcluster.sqpcmki.mongodb.net/?retryWrites=true&w=majority&appName=FlashCardAppCluster"
+        self.manager = FlashcardDB(MONGO_URI)
+
+        self.cards = []
         self.current_card = None
+        self.review_queue = []
         
+        self.card_categories = set(self.manager.get_categories())
+        
+        self.load_initial_data()
+
         self.create_widgets()
         self.refresh_queue()
-    
+        
     def create_widgets(self):
         # Main notebook for tabs
         notebook = ttk.Notebook(self.window)
@@ -96,6 +104,10 @@ class FlashCardApp:
         self.category_combo.set("All")
         self.category_combo.pack(side=tk.LEFT, padx=5)
         self.category_combo.bind("<<ComboboxSelected>>", self.refresh_queue)
+        self.category_combo['value'] = ["All"] + sorted(self.card_categories if hasattr(self, 'card_categories') else [])
+        
+        print(f"Debug - categories: {hasattr(self, 'card_categories')}")
+        print(f"Debug - cards: {hasattr(self, 'cards')}")
         
         # Next card button
         ttk.Button(self.study_frame, text="Next Card", 
@@ -137,14 +149,23 @@ class FlashCardApp:
     
     def next_card(self):
         selected_category = self.category_var.get()
-        self.current_card = self.manager.get_next_card(selected_category)
+        card_data = self.manager.get_next_card(selected_category)
+        if card_data:
+            self.current_card = FlashCard(
+                front=card_data['question'],
+                back=card_data['answer'],
+                category=card_data.get('category', 'General')
+            )
+        else:
+            self.current_card = None
         
         if self.current_card:
-            self.front_label.config(text=self.current_card.question)
-            self.back_label.config(text=self.current_card.answer)
+            self.front_label.config(text=self.current_card.front)
+            self.back_label.config(text=self.current_card.back)
             self.back_label.pack_forget()
             self.show_button.pack()
             self.difficulty_frame.pack_forget()
+            root.mainloop()
         else:
             self.front_label.config(text="No cards available in this category")
             self.back_label.pack_forget()
@@ -194,14 +215,13 @@ class FlashCardApp:
             messagebox.showerror("Error", "Please fill in all fields")
             return
         
-        self.manager.add_card(front, back, category)
+        self.manager.add_card_to_db(front, back, category)
         
         new_card = FlashCard(front, back, category)
-        self.cards.append(new_card)
+        self.cards.append(FlashCard(front, back, category))
         self.card_categories.add(category)
         
-        # Update category dropdown
-        self.category_combo['values'] = ["All"] + sorted(self.card_categories)
+        self.update_category_dropdown()
         
         # Clear form
         self.front_entry.delete("1.0", tk.END)
@@ -210,7 +230,33 @@ class FlashCardApp:
         
         messagebox.showinfo("Success", "Flash card added successfully!")
         self.refresh_queue()
-
+        
+        
+    def update_category_dropdown(self):
+        """Update the category dropdown with current categories"""
+        self.category_combo['values'] = ["All"] + sorted(self.card_categories)
+ 
+    def load_initial_data(self):
+        try:
+            db_cards = self.manager.get_all_cards()  # You'll need to implement this in FlashcardDB
+            self.cards = [FlashCard(
+            front=card['question'],
+            back=card['answer'],
+            category=card.get('category', 'General')
+        ) for card in db_cards]
+        
+        # Initialize categories
+            self.card_categories = {card.category for card in self.cards}
+        except Exception as e:
+            messagebox.showerror("Database Error", f"Failed to load initial data: {e}")
+            self.card_categories = set()
+            self.cards = [ FlashCard(
+                front=card['front'],
+                back=card['back'],
+                category=card['category']
+            )for card in db_cards]
+        
+        
 # Example usage:
 if __name__ == "__main__":
     root = tk.Tk()

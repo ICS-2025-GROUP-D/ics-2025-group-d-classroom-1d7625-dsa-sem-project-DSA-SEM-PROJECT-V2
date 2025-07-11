@@ -4,7 +4,8 @@ from linkedlist import LinkedList, Node # <-- Import LinkedList and Node classes
 from queue_module import FlashcardQueue # <-- Import FlashcardQueue class
 from datetime import datetime
 from linkedlist import LinkedList, Node 
-from queue_module import FlashcardQueue
+from CategoryManager import CategoryManager
+import random
 
 class FlashcardDB:
     def __init__(self, connection_string, db_name="flashcard_app", collection_name="flashcards"):
@@ -31,7 +32,7 @@ class FlashcardDB:
             node = Node(card_data['_id'], card_data['question'], card_data['answer'])
             self.queue.enqueue_card(node)
 
-    def add_card_to_db(self, question, answer):
+    def add_card_to_db(self, question, answer, category):
         """Adds a card to both the DB and the linked list."""
         card_document = {"question": question, "answer": answer}
         result = self.collection.insert_one(card_document)
@@ -59,6 +60,33 @@ class FlashcardDB:
             print(f"Card {card_id} deleted.")
             return True
         return False
+    
+    def get_categories(self):
+        categories = set()
+        for card in self.collection.find({}):
+            if 'category' in card:
+                categories.add(card['category'])
+        return list(categories)
+    
+    def get_all_cards(self):
+        #Returns a list of all cards as dictionaries
+        return list(self.collection.find({}))
+    
+           
+    def get_next_card(self, category = "All"):
+        query ={}
+        if category != "All":
+            query["category"] = category
+        cards = list(self.collection.find(query))
+        if not cards:
+            return None
+        card = random.choice(cards)
+        return {
+            "question": card.get("question", ""),
+            "answer": card.get("answer", ""),
+            "category": card.get("category", "General"),
+            "_id": card.get("_id")
+        }    
 
 # Example Usage:
 if __name__ == '__main__':

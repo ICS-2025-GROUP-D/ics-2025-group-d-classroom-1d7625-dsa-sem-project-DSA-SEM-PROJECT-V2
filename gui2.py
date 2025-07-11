@@ -1,3 +1,5 @@
+from main import FlashcardDB
+
 class FlashCardManager:
     def __init__(self, connection_string):
         self.db = FlashcardDB(connection_string)
@@ -18,18 +20,19 @@ class FlashCardManager:
                 if current.category == category_filter:
                     # Remove this card from queue
                     if prev is None:
-                    self.db.queue.front = current.
-                        
-                    if current == self.db.queue.front:
-                        return self.db.queue.dequeue_card()
-                    else:
+                     return self.db.queue.front
+                else:
+                     prev.next = current.next
+                    
+                if current == self.db.queue.front:
+                    return self.db.queue.dequeue_card()
+                else:
                         # implementation of the removal from middle of queue
                         ##returning the first matching card
-                        temp = current
-                        current = None # Break loop
-                        return temp
-                    current = current.next
-                    return None
+                    temp = current
+                    current = None # Break loop
+                    return temp
+                return None
                     
     def add_card(self, front, back, category):
         """Add new flashcard"""

@@ -26,7 +26,7 @@ class Stack:
         return popped_card
     
     def peek_card(self):
-        """Returns the flashcard at the top without removing it.""""
+        """Returns the flashcard at the top without removing it."""
         return self.top
     
     def is_empty(self):
