@@ -1,29 +1,32 @@
-
-
 import pytest
-from patient_hashtable import PatientHashTable
+from patient_hashtable import Patient, PatientHashTable
 
 @pytest.fixture
 def hashtable():
     return PatientHashTable()
 
 def test_insert_and_get_patient(hashtable):
-    patient = {'id': 'P001', 'name': 'Alice', 'age': 25}
-    hashtable.insert(patient)
-    assert hashtable.get('P001') == patient
+    patient = Patient(1, 'Alice', 25, 'Flu')
+    hashtable.insert_patient(patient)
+    result = hashtable.get_patient_by_id(1)
+    assert result is not None
+    assert result.name == 'Alice'
+    assert result.age == 25
+    assert result.condition == 'Flu'
 
 def test_get_nonexistent_patient(hashtable):
-    assert hashtable.get('P999') is None
+    assert hashtable.get_patient_by_id(999) is None
 
 def test_delete_patient(hashtable):
-    patient = {'id': 'P002', 'name': 'Bob', 'age': 40}
-    hashtable.insert(patient)
-    hashtable.delete('P002')
-    assert hashtable.get('P002') is None
+    patient = Patient(2, 'Bob', 40, 'Cough')
+    hashtable.insert_patient(patient)
+    hashtable.delete_patient_by_id(2)
+    assert hashtable.get_patient_by_id(2) is None
 
 def test_overwrite_existing_patient(hashtable):
-    patient1 = {'id': 'P003', 'name': 'Charlie', 'age': 50}
-    patient2 = {'id': 'P003', 'name': 'Charlie B.', 'age': 51}
-    hashtable.insert(patient1)
-    hashtable.insert(patient2)
-    assert hashtable.get('P003') == patient2
+    patient1 = Patient(3, 'Charlie', 50, 'Fever')
+    patient2 = Patient(3, 'Charlie B.', 51, 'Recovered')
+    hashtable.insert_patient(patient1)
+    hashtable.insert_patient(patient2)  # Will not overwrite, warning will print
+    result = hashtable.get_patient_by_id(3)
+    assert result.name == 'Charlie'  # Should still be the first one inserted
