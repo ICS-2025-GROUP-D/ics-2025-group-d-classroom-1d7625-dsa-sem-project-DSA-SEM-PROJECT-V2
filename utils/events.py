@@ -6,3 +6,4 @@ def handle_tv_switch(val):
 
 def handle_thermostat_switch(val):
     print(f"Thermostat switched: {val}")
+    
