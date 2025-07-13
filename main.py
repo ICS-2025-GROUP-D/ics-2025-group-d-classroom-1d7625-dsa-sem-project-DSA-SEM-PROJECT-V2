@@ -18,6 +18,7 @@ from widgets.room_tabs import create_room_tabs
 from utils.helpers import get_current_time
 from widgets.device_section import create_device_controls
 from widgets.camera_section import create_camera_section
+from widgets.music_player import create_music_player
  
 class SmartHomeApp(ctk.CTk):
     def __init__(self):
@@ -38,6 +39,7 @@ class SmartHomeApp(ctk.CTk):
         create_room_tabs(self)
         create_device_controls(self)
         create_camera_section(self)
+        create_music_player(self)
 
 
 if __name__ == "__main__":
