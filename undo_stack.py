@@ -70,7 +70,7 @@ class Undo:
     def add_info(self, action, patient):
         self.undo_stack.push((action, patient))  # store tuple
 
-    def undo_last_info(self, patient_stack):
+    def undo_last_task(self, patient_stack):
         if self.undo_stack.is_empty():
             print("Nothing to undo in stack")
             return
@@ -168,7 +168,7 @@ def main():
                 print("Patient not found(Only remove top patient).")
 
         elif choice == "5":
-            undo_stack.undo_last_info(patient_stack)
+            undo_stack.undo_last_task(patient_stack)
 
         elif choice == "6":
             print("Exiting the system.BYE BYE")
