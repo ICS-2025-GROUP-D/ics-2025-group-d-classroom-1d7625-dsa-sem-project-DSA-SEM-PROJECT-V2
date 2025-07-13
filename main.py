@@ -5,6 +5,7 @@ from queue_module import FlashcardQueue # <-- Import FlashcardQueue class
 from datetime import datetime
 from linkedlist import LinkedList, Node 
 from CategoryManager import CategoryManager
+from ReviewHistory import ReviewHistory
 import random
 
 class FlashcardDB:
@@ -54,6 +55,13 @@ class FlashcardDB:
         return False
 
     def delete_card_from_db(self, card_id):
+        if isinstance(card_id, ObjectId):
+            try:
+                card_id = ObjectId(card_id)
+            except:
+                print(f"Invalid card ID: {card_id}")
+                return False
+            
         """Deletes a card from the DB and the linked list."""
         if self.linked_list.delete_card(card_id):
             self.collection.delete_one({"_id": card_id})
@@ -86,8 +94,24 @@ class FlashcardDB:
             "answer": card.get("answer", ""),
             "category": card.get("category", "General"),
             "_id": card.get("_id")
-        }    
-
+        }  
+    def review_history(self):
+        """Return a list of all review history entries as dicts."""
+        if not hasattr(self, 'review_history_manager'):
+            self.review_history_manager = ReviewHistory()
+        # If you want to return all review entries as a list of dicts:
+        return [
+            {"card_id": card_id, **entry}
+            for card_id, entry in self.review_history_manager.history.items()
+        ]
+        
+    def save_data(self):
+        """Save the data to the DB."""
+        self.collection.insert_many(self.linked_list.cards)
+        self.linked_list.save()
+        self.review_history_manager.save()
+        print("Data saved.")
+        
 # Example Usage:
 if __name__ == '__main__':
     # Replace with your actual connection string
