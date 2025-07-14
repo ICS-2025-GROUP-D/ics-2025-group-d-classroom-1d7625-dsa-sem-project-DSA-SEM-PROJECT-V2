@@ -1,5 +1,5 @@
 import unittest
-from models.patient import Patient
+from src.data_structures.linked_list.patient import Patient
 from data_structures.hospital_linkedlist import HospitalLinkedList
 
 class TestLinkedList(unittest.TestCase):
