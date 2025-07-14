@@ -20,6 +20,8 @@ from utils.helpers import get_current_time
 from widgets.device_section import create_device_controls
 from widgets.camera_section import create_camera_section
 from widgets.music_player import create_music_player
+from widgets.air_conditioner_section import create_air_conditioner_section
+
  
 class SmartHomeApp(ctk.CTk):
     def __init__(self):
@@ -126,6 +128,8 @@ class SmartHomeApp(ctk.CTk):
         create_device_controls(self)
         create_camera_section(self)
         create_music_player(self)
+        create_air_conditioner_section(self)
+
 
 
 if __name__ == "__main__":
