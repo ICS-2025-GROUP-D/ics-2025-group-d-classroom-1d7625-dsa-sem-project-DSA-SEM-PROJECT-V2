@@ -1,11 +1,11 @@
 class BSTNode:
-    def __init__(self, patient):
-        self.patient = patient  # A dictionary e.g. {'id': 5, 'name': 'John'}
+    def _init_(self, patient):
+        self.patient = patient
         self.left = None
         self.right = None
 
 class PatientBST:
-    def __init__(self):
+    def _init_(self):
         self.root = None
 
     def insert(self, patient):
@@ -30,3 +30,29 @@ class PatientBST:
             else:
                 return _search(node.right, pid)
         return _search(self.root, pid)
+
+    def delete(self, pid):
+        def _delete(node, pid):
+            if not node:
+                return None
+            if pid < node.patient['id']:
+                node.left = _delete(node.left, pid)
+            elif pid > node.patient['id']:
+                node.right = _delete(node.right, pid)
+            else:
+                if not node.left:
+                    return node.right
+                elif not node.right:
+                    return node.left
+                else:
+                    min_larger_node = _find_min(node.right)
+                    node.patient = min_larger_node.patient
+                    node.right = _delete(node.right, min_larger_node.patient['id'])
+            return node
+
+        def _find_min(node):
+            while node.left:
+                node = node.left
+            return node
+
+        self.root = _delete(self.root, pid)
