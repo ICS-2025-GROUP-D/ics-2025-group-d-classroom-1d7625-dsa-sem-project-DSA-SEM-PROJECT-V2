@@ -1,5 +1,12 @@
+class Patient:
+    def __init__(self,id, name, age, illness):
+        self.id = id
+        self.name = name
+        self.age = age
+        self.illness = illness
+
 class PatientHashTable:
-    def _init_(self):
+    def __init__(self):
         self.table = {}
 
     def insert(self, patient):
