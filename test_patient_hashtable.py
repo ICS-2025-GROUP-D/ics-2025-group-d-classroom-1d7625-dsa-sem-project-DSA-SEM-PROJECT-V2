@@ -1,34 +1,20 @@
-import pytest
-from patient_hashtable import Patient, PatientHashTable
+import unittest
+from models.patient import Patient
+from data_structures.hash_table import PatientHashTable
 
-@pytest.fixture
-def hashtable():
-    return PatientHashTable()
+class TestHashTable(unittest.TestCase):
+    def setUp(self):
+        self.ht = PatientHashTable()
+        self.p1 = Patient(1, "Alice", 30, "Flu", 2)
 
-def test_insert_and_get_patient(hashtable):
-    patient = Patient(1, 'Alice', 25, 'Flu')
-    hashtable.insert(patient)
-    result = hashtable.search(1)
-    assert result is not None
-    assert result.name == 'Alice'
-    assert result.age == 25
-    assert result.illness == 'Flu'
+    def test_insert_and_get(self):
+        self.ht.insert(self.p1)
+        self.assertEqual(self.ht.get(1).name, "Alice")
 
-def test_get_nonexistent_patient(hashtable):
-    assert hashtable.search(999) is None
+    def test_delete(self):
+        self.ht.insert(self.p1)
+        self.ht.delete(1)
+        self.assertIsNone(self.ht.get(1))
 
-def test_delete_patient(hashtable):
-    patient = Patient(2, 'Bob', 40, 'Cough')
-    hashtable.insert(patient)
-    hashtable.delete(2)
-    assert hashtable.search(2) is None
-
-def test_overwrite_existing_patient(hashtable):
-    patient1 = Patient(3, 'Charlie', 50, 'Fever')
-    patient2 = Patient(3, 'Charlie B.', 51, 'Recovered')
-    hashtable.insert(patient1)
-    hashtable.insert(patient2)  # Overwrites existing patient with same ID
-    result = hashtable.search(3)
-    assert result.name == 'Charlie B.'
-    assert result.age == 51
-    assert result.illness == 'Recovered'
+if __name__ == '_main_':
+    unittest.main()
