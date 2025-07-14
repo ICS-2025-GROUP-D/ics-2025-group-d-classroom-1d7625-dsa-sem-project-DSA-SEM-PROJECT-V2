@@ -1,10 +1,10 @@
 class LinkedListNode:
-    def _init_(self, patient):
+    def __init__(self, patient):
         self.patient = patient
         self.next = None
 
 class HospitalLinkedList:
-    def _init_(self):
+    def __init__(self):
         self.head = None
 
     def append(self, patient):
@@ -28,4 +28,4 @@ class HospitalLinkedList:
                     self.head = current.next
                 return
             prev = current
-            current = current.next
+            current = current.next
